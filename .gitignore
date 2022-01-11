@@ -1,0 +1,27 @@
+*~
+.*~
+.#*
+*.exe
+*.out
+*.o
+*.class
+*.pyc
+*.elc
+*.pyc
+*.fasl
+*test*-large.txt
+# .project
+# .classpath
+workbench.xmi
+TAGS*
+GTAGS
+GPATH
+GRTAGS
+.clang_complete
+.Rhistory
+.gdb_history
+.history*
+_minted*
+
+tmp*
+temp
