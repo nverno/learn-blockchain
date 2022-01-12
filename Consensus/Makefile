@@ -5,10 +5,10 @@ CLASS  = ${SRC:.java=.class}
 DRIVER = Simulation
 
 # Input parameters for simulation
-PGRAPH ?= .1 .2 #.3
-PMAL   ?= .15 #.30 .45
-PTX    ?= .01 .05# .10
-NROUND ?= 10 #20
+PGRAPH ?= .1 .2    # .3
+PMAL   ?= .15 .30  # .45
+PTX    ?= .01 .05  # .10
+NROUND ?= 10       # 20
 
 all: run
 

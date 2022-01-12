@@ -1,11 +1,8 @@
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.HashMap;
-import java.util.TreeMap;
 import java.util.PriorityQueue;
 
 public class CompliantNode implements Node {
@@ -36,7 +33,7 @@ public class CompliantNode implements Node {
 
   // Assumed valid
   public void setPendingTransaction(Set<Transaction> pendingTransactions) {
-    consensus = new HashSet<Transaction>(pendingTransactions);
+    consensus = new HashSet<>();
     pending = pendingTransactions;
   }
 
@@ -58,21 +55,22 @@ public class CompliantNode implements Node {
     }
 
     // Tests are stict on message sizes: so only send
-    // those with higher confidence
-    final int maxsz = 200;
+    // those with higher confidence (passing range ~100-150) before 104 error
+    final int maxsz = 150;
     PriorityQueue<Transaction> pq = new PriorityQueue<>
       ((a, b) -> -1 * Integer.compare(cnt.get(a), cnt.get(b)));
 
     for (Map.Entry<Transaction,Integer> e : cnt.entrySet()) {
       pq.add(e.getKey());
-      if (e.getValue() > N * (p_graph * p_txDistribution))
+      if (e.getValue() > N * (p_graph * p_txDistribution) - 1)
         consensus.add(e.getKey());
-      else consensus.remove(e.getKey());
+      // else consensus.remove(e.getKey());
     }
-
+    
     for (Transaction t : pq) {
       if (pending.size() > maxsz) break;
-      pending.add(t);
+      if (cnt.get(t) < 0.5 * (1-p_malicious) * N)
+        pending.add(t);
     }
 
     // track followees that aren't broadcasting
