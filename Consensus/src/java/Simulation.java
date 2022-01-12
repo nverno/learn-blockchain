@@ -38,7 +38,8 @@ public class Simulation {
       if(Math.random() < p_malicious)
         // When you are ready to try testing with malicious nodes, replace the
         // instantiation below with an instantiation of a MaliciousNode
-        nodes[i] = new MaliciousNode(p_graph, p_malicious, p_txDistribution, numRounds);
+        nodes[i] = new MaliciousNode
+          (p_graph, p_malicious, p_txDistribution, numRounds, 1);
       else
         nodes[i] = new CompliantNode(p_graph, p_malicious, p_txDistribution, numRounds);
     }

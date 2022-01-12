@@ -2,24 +2,25 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 
-public class MaliciousNode implements Node {
-
+// Malicious nodes
+// type 1: never update transactions after initial
+public class MaliciousNode extends CompliantNode {
+  int type;
   public MaliciousNode(double p_graph, double p_malicious, double p_txDistribution,
-                       int numRounds) {
+                       int numRounds, int type) {
+    super(p_graph, p_malicious, p_txDistribution, numRounds);
+    this.type = type;
   }
 
-  public void setFollowees(boolean[] followees) {
-    return;
-  }
-
-  public void setPendingTransaction(Set<Transaction> pendingTransactions) {
-    return;
-  }
-
+  @Override
   public Set<Transaction> sendToFollowers() {
-    return new HashSet<Transaction>();
+    // if (type != 1)
+    //   txs.clear();
+    // return res;
+    return pending;
   }
 
+  @Override
   public void receiveFromFollowees(Set<Candidate> candidates) {
     return;
   }
