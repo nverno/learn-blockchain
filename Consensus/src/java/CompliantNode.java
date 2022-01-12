@@ -2,15 +2,18 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.HashMap;
+import java.util.TreeMap;
+import java.util.PriorityQueue;
 
 public class CompliantNode implements Node {
-  protected double p_graph,            // prob. an edge exists b/w nodes in graph
-    p_malicious,                       // prob. a node in graph is malicious
-    p_txDistribution;                  // prob. initial tx assigned to node
-  protected int numRounds,             // total rounds
-    prevRound, curRound;               // previous/current round number
+  protected double p_graph,                  // prob. an edge exists b/w nodes in graph
+    p_malicious,                             // prob. a node in graph is malicious
+    p_txDistribution;                        // prob. initial tx assigned to node
+  protected int numRounds, N, cur;           // total rounds, followees(non-mal), round#
   protected boolean[] followees, mal, seen;  // track malicious nodes
-  protected Set<Transaction> sent;   // already sent
   protected Set<Transaction> pending, consensus;
 
   public CompliantNode(double p_graph, double p_malicious, double p_txDistribution, int numRounds) {
@@ -18,8 +21,7 @@ public class CompliantNode implements Node {
     this.p_malicious = p_malicious;
     this.p_txDistribution = p_txDistribution;
     this.numRounds = numRounds;
-    sent = new HashSet<>();
-    curRound = prevRound = 0;
+    N = cur = 0;
   }
 
   public void setFollowees(boolean[] followees) {
@@ -27,40 +29,50 @@ public class CompliantNode implements Node {
     seen = new boolean[followees.length];
     Arrays.fill(mal, false);
     this.followees = followees;
+    for (int i = 0; i < followees.length; i++)
+      if (followees[i]) N++;
+    N -= N * p_malicious;
   }
 
   // Assumed valid
   public void setPendingTransaction(Set<Transaction> pendingTransactions) {
-    consensus = pendingTransactions;
+    consensus = new HashSet<Transaction>(pendingTransactions);
     pending = pendingTransactions;
   }
 
+  // after numRounds behaviour changes to only sending consesus
   public Set<Transaction> sendToFollowers() {
-    if (curRound >= numRounds) return consensus;
-
-    HashSet<Transaction> res = new HashSet<>();
-    for (Transaction t : pending) {
-      if (!sent.contains(t)) {
-        res.add(t);
-        sent.add(t);
-      }
-    }
-    prevRound = curRound;
-    pending.clear();
-    return res;
+    return (++cur >= numRounds) ? consensus : pending;
   }
 
   public void receiveFromFollowees(Set<Candidate> candidates) {
+    pending.clear();
     Arrays.fill(seen, false);
-    if (++curRound > prevRound)
-      pending.clear();
-    
+
+    HashMap<Transaction,Integer> cnt = new HashMap<>();
     for (Candidate c : candidates) {
       seen[c.sender] = true;
       if (!mal[c.sender]) {
-        pending.add(c.tx);
-        consensus.add(c.tx);
+        cnt.merge(c.tx, 1, Integer::sum);
       }
+    }
+
+    // Tests are stict on message sizes: so only send
+    // those with higher confidence
+    final int maxsz = 200;
+    PriorityQueue<Transaction> pq = new PriorityQueue<>
+      ((a, b) -> -1 * Integer.compare(cnt.get(a), cnt.get(b)));
+
+    for (Map.Entry<Transaction,Integer> e : cnt.entrySet()) {
+      pq.add(e.getKey());
+      if (e.getValue() > N * (p_graph * p_txDistribution))
+        consensus.add(e.getKey());
+      else consensus.remove(e.getKey());
+    }
+
+    for (Transaction t : pq) {
+      if (pending.size() > maxsz) break;
+      pending.add(t);
     }
 
     // track followees that aren't broadcasting

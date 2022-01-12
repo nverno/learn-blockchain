@@ -10,7 +10,26 @@ import java.util.Set;
 import java.util.HashMap;
 
 public class Simulation {
+  // #nodes that reached consensus
+  // size of consensus set
+  static public void printResults(Node[] nodes) {
+    int cnt = 0, sz = 0;
+    HashMap<Set<Transaction>,Integer> m = new HashMap<>();
+    for (int i = 0; i < nodes.length; i++) {
+      Set<Transaction> s = nodes[i].sendToFollowers();
+      if (!s.isEmpty()) {
+        m.merge(s, 1, Integer::sum);
+        int v = m.get(s);
+        if (cnt < v) {
+          cnt = v;
+          sz = s.size();
+        }
+      }
+    }
 
+    System.out.println(cnt + " nodes reached consensus |" + sz + "|");
+  }
+  
   // There are four required command line arguments: p_graph (.1, .2, .3),
   // p_malicious (.15, .30, .45), p_txDistribution (.01, .05, .10), 
   // and numRounds (10, 20). You should try to test your CompliantNode
@@ -120,13 +139,16 @@ public class Simulation {
     }
 
     // print results
-    for (int i = 0; i < numNodes; i++) {
-      Set<Transaction> transactions = nodes[i].sendToFollowers();
-      System.out.println("Transaction ids that Node " + i + " believes consensus on:");
-      for (Transaction tx : transactions)
-        System.out.println(tx.id);
-      System.out.println();
-      System.out.println();
-    }
+    // for (int i = 0; i < numNodes; i++) {
+    //   Set<Transaction> transactions = nodes[i].sendToFollowers();
+    //   System.out.println("Transaction ids that Node " + i + " believes consensus on:");
+    //   for (Transaction tx : transactions)
+    //     System.out.println(tx.id);
+    //   System.out.println();
+    //   System.out.println();
+    // }
+    System.out.printf("[%.2f,%.2f,%.2f,%d]: ", p_graph, p_malicious, p_txDistribution,
+                      numRounds);
+    printResults(nodes);
   }
 }
