@@ -25,3 +25,21 @@ build on them or ignore them and build from previous block.
 4. Other nodes accept new block only if all transactions are valid
 5. If valid, nodes include block's hash in next block they create
 
+*** Implementation
+The grader is very strict on memory/size of messages passed between nodes.
+
+- ~Simulation.java~ is driver program taking parameters to vary graph
+  pairwise-connectivity, prob. of a given node being malicious, prob. of a node
+  receiving an initial transaction, and number of rounds to propagate messages
+  before consensus.
+
+- ~CompliantNode.java~ implements implicit consensus by choosing to accept
+  transactions that have been sent by large enough percentage of nodes it
+  follows. Any of its followees that stop sending messages during a given epoch
+  are ignored afterward. The threshold for a transaction being chosen as part of
+  the consensus set varies by the graph probabilities (pairwise-connectivity,
+  probability of a node receiving an initial transaction).
+
+** Blockchain
+Implement a node in a blockchain-based distribution consensus protocol that
+receives incoming transactions/blocks and updates the blockchain.
