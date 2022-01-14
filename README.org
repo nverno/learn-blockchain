@@ -1,4 +1,4 @@
-#+TITLE: Blockchain Courses
+#+TITLE: Blockchain
 
 * [[https://www.coursera.org/learn/cryptocurrency/home/welcome][Princeton Cryptocurrency]]
 ** ScroogeCoin
@@ -41,5 +41,10 @@ The grader is very strict on memory/size of messages passed between nodes.
   probability of a node receiving an initial transaction).
 
 ** Blockchain
-Implement a node in a blockchain-based distribution consensus protocol that
-receives incoming transactions/blocks and updates the blockchain.
+- ~BlockChain.java~ implements blockchain
+- Each block maintains a pool of unspent tokens that are available as inputs in
+  transactions
+- Pending transactions are held in global pool, when a new block is accepted,
+  its spent transactions are removed from the global pool
+- Block creation, coinbase transaction, has a constant value of 25
+- blocks more than 10 cycles behind the leading block can't be built upon

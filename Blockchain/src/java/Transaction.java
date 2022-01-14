@@ -127,7 +127,8 @@ public class Transaction {
     coinbase = false;
   }
 
-  /** create a coinbase transaction of value {@code coin} and calls finalize on it */
+  /** create a coinbase transaction of value {@code coin} and calls finalize on
+   * it */
   public Transaction(double coin, PublicKey address) {
     coinbase = true;
     inputs = new ArrayList<Input>();
